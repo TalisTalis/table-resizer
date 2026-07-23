@@ -39,7 +39,7 @@ class TableResizer {
         // Добавляем необходимые классы и стили
         table.classList.add('table-resizable');
         table.style.tableLayout = 'fixed';
-        table.style.width = '100%';
+        table.style.width = 'fit-content';
 
         const instance = {
             table,
@@ -106,7 +106,7 @@ class TableResizer {
             style.textContent = `
                 .table-resizable {
                     table-layout: fixed;
-                    width: 100%;
+                    width: fit-content;
                     border-collapse: collapse;
                     white-space: nowrap;
                 }

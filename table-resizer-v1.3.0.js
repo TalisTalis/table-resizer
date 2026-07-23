@@ -45,7 +45,8 @@ class TableResizer {
                 'action': '40px',      // Действия (иконки/кнопки)
                 'small-icon': '30px',  // Маленькая иконка
                 'icon': '40px',        // Иконка
-                'checkbox': '30px'     // Чекбокс
+                'checkbox': '30px',     // Чекбокс
+                'hospital_type': '80px' // Тип стационара
             }
         };
 

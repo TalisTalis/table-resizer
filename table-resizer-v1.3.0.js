@@ -22,8 +22,8 @@ class TableResizer {
                 'short-date': '10ch',  // Короткая дата (DD.MM.YY)
                 'datetime': '18ch',    // Дата и время
                 'time': '8ch',         // Время
-                'age': '6ch',          // Возраст
-                'gender': '6ch',       // Пол
+                'age': '7ch',          // Возраст
+                'gender': '7ch',       // Пол
                 'policy': '20ch',      // Номер полиса (ЕНП)
                 'phone': '15ch',       // Телефон
                 'email': '25ch',       // Email

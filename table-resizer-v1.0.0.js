@@ -145,6 +145,11 @@ class TableResizer {
                 .table-resizable.resizing * {
                     user-select: none;
                 }
+
+                .column-control-header {
+                    width: 50px !important;
+                    min-width: 50px !important;
+                }
             `;
             document.head.appendChild(style);
         }

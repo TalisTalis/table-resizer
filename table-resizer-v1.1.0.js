@@ -12,8 +12,9 @@ class TableResizer {
             saveDelay: 300,
             defaultWidth: 300,
             minColumnsForDefaultWidth: 4,
-            disabledColumns: [], // массив ключей столбцов, для которых отключена регулировка
-            dataColumnAttribute: 'data-column' // атрибут, содержащий ключ столбца
+            disabledColumns: [],
+            dataColumnAttribute: 'data-column',
+            initialColumnWidths: {}
         };
 
         this.options = { ...this.defaultOptions, ...options };
@@ -569,10 +570,37 @@ class TableResizer {
 
         // Если нет сохраненных ширин или не все столбцы имеют сохраненные ширины
         if (Object.keys(savedWidths).length === 0) {
-            // Устанавливаем ширину по умолчанию
-            this.applyDefaultWidths(instance);
+            const { initialColumnWidths } = instance.options;
+            const hasInitialWidths = Object.keys(initialColumnWidths).length > 0;
 
-            // Сохраняем ширины
+            if (hasInitialWidths) {
+                // Применяем ручные начальные ширины
+                const firstRow = table.querySelector('tr');
+                if (firstRow) {
+                    const cells = firstRow.querySelectorAll('th, td');
+                    cells.forEach((cell, index) => {
+                        const columnKey = this.getColumnKey(cell);
+                        if (!columnKey || cell.classList.contains('column-control-header') ||
+                            options.disabledColumns.includes(columnKey)) {
+                            return;
+                        }
+
+                        const width = initialColumnWidths[columnKey];
+                        if (width) {
+                            const finalWidth = parseInt(width) >= options.minWidth ? width : (options.minWidth + 'px');
+                            this.setColumnWidth(instance, columnKey, index, finalWidth);
+                        } else {
+                            // Для остальных — дефолтная ширина
+                            this.applyDefaultWidthToColumn(instance, columnKey, index);
+                        }
+                    });
+                }
+            } else {
+                // Нет initialColumnWidths — используем стандартный подход
+                this.applyDefaultWidths(instance);
+            }
+
+            // Сохраняем ширины после применения
             setTimeout(() => {
                 this.saveColumnWidths(instance);
             }, 100);
@@ -581,44 +609,41 @@ class TableResizer {
         // Всегда восстанавливаем стили column-control-header
         this.preserveControlColumnStyles(instance);
     }
+    /**
+     * Применяет ширину по умолчанию к одному столбцу
+    */
+    applyDefaultWidthToColumn(instance, columnKey, columnIndex) {
+        const { options } = instance;
+        const activeColumnsCount = this.countActiveColumns(instance);
+        let finalWidth;
+
+        if (activeColumnsCount > options.minColumnsForDefaultWidth) {
+            finalWidth = options.defaultWidth + 'px';
+        } else {
+            const widthScreen = window.innerWidth - 80;
+            const widthColumn = Math.floor(widthScreen / activeColumnsCount);
+            finalWidth = Math.max(widthColumn, options.minWidth) + 'px';
+        }
+
+        this.setColumnWidth(instance, columnKey, columnIndex, finalWidth);
+    }
 
     /**
      * Применяет ширину по умолчанию к активным столбцам
      */
     applyDefaultWidths(instance) {
         const { table, options } = instance;
-        const activeColumnsCount = this.countActiveColumns(instance);
+        const firstRow = table.querySelector('tr');
+        if (!firstRow) return;
 
-        if (activeColumnsCount > 0) {
-            const firstRow = table.querySelector('tr');
-            if (!firstRow) return;
-
-            const cells = firstRow.querySelectorAll('th, td');
-
-            if (activeColumnsCount > options.minColumnsForDefaultWidth) {
-                // Если активных столбцов больше 4 - устанавливаем дефолтную ширину
-                cells.forEach((cell, index) => {
-                    const columnKey = this.getColumnKey(cell);
-                    if (columnKey && !cell.classList.contains('column-control-header') &&
-                        !options.disabledColumns.includes(columnKey)) {
-                        this.setColumnWidth(instance, columnKey, index, options.defaultWidth + 'px');
-                    }
-                });
-            } else {
-                // Если активных столбцов 4 или меньше - используем ширину экрана / количество активных столбцов
-                const widthScreen = window.innerWidth - 80;
-                const widthColumn = Math.floor(widthScreen / activeColumnsCount);
-                const finalWidth = Math.max(widthColumn, options.minWidth);
-
-                cells.forEach((cell, index) => {
-                    const columnKey = this.getColumnKey(cell);
-                    if (columnKey && !cell.classList.contains('column-control-header') &&
-                        !options.disabledColumns.includes(columnKey)) {
-                        this.setColumnWidth(instance, columnKey, index, finalWidth + 'px');
-                    }
-                });
+        const cells = firstRow.querySelectorAll('th, td');
+        cells.forEach((cell, index) => {
+            const columnKey = this.getColumnKey(cell);
+            if (columnKey && !cell.classList.contains('column-control-header') &&
+                !options.disabledColumns.includes(columnKey)) {
+                this.applyDefaultWidthToColumn(instance, columnKey, index);
             }
-        }
+        });
     }
 
     /**

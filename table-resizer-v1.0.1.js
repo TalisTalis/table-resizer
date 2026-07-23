@@ -59,8 +59,8 @@ class TableResizer {
     }
 
     /**
- * Настраивает таблицу для работы с ресайзом
- */
+   * Настраивает таблицу для работы с ресайзом
+   */
     setupTable(instance) {
         const { table, options } = instance;
         const headers = table.querySelectorAll('th:not(.column-control-header)');
@@ -69,10 +69,8 @@ class TableResizer {
         headers.forEach((header, index) => {
             header.setAttribute('data-column', index);
 
-            // Автоматически подбираем ширину по заголовку при загрузке
-            setTimeout(() => {
-                this.autoResizeColumn(instance, header, true); // true - это начальная загрузка
-            }, 10);
+            // УБРАТЬ: автоматический подбор ширины при загрузке
+            // Это будет делаться в loadColumnWidths только если нет сохраненных данных
 
             // Создаем handle для ресайза если его нет
             let handle = header.querySelector('.resize-handle');
@@ -90,7 +88,7 @@ class TableResizer {
             // Автоподбор по двойному клику
             if (options.autoResizeOnDblClick) {
                 handle.addEventListener('dblclick', (e) => {
-                    this.autoResizeColumn(instance, header, false); // false - не начальная загрузка
+                    this.autoResizeColumn(instance, header, false);
                     e.preventDefault();
                     e.stopPropagation();
                 });
@@ -339,13 +337,14 @@ class TableResizer {
     }
 
     /**
-     * Загружает сохраненные ширины столбцов
-     */
+    * Загружает сохраненные ширины столбцов
+    */
     loadColumnWidths(instance) {
         const { table, options } = instance;
         const savedWidths = JSON.parse(localStorage.getItem(options.storageKey));
 
         if (savedWidths && savedWidths.length > 0) {
+            // Есть сохраненные ширины - восстанавливаем их
             savedWidths.forEach((width, index) => {
                 if (width) {
                     // Проверяем, что загруженная ширина не меньше минимальной
@@ -355,8 +354,13 @@ class TableResizer {
                 }
             });
         } else {
-            // Равномерное распределение при первом запуске
-            this.distributeColumns(instance);
+            // Нет сохраненных ширин - устанавливаем по ширине заголовков
+            const headers = table.querySelectorAll('th:not(.column-control-header)');
+            headers.forEach((header, index) => {
+                setTimeout(() => {
+                    this.autoResizeColumn(instance, header, true);
+                }, index * 50);
+            });
         }
     }
 

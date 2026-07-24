@@ -29,6 +29,7 @@
 ```javascript
 // Инициализация таблицы с ID "myTable"
 window.tableResizer.init('myTable');
+```
 
 ## Расширенная настройка
 
@@ -51,6 +52,7 @@ window.tableResizer.init('myTable', {
         'phone': '18ch'
     }
 });
+```
 
 ## Демо
 Посмотреть работу библиотеки в действии можно по ссылке:

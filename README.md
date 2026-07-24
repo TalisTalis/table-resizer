@@ -118,6 +118,7 @@ https://talistalis.github.io/table-resizer/
 | `action` | `40px` | Действия (иконки/кнопки) |
 | `checkbox` | `30px` | Чекбокс |
 | `hospital_type` | `80px` | Тип стационара |
+
 💡 Вы можете дополнить или переопределить эти значения через опцию dataTypeWidths.
 
 ## Браузерная совместимость
